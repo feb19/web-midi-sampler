@@ -2,7 +2,12 @@
 var infos = [], debug;
 var centerC = 60;
 var notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-navigator.requestMIDIAccess().then( success, failure );
+if (typeof navigator.requestMIDIAccess !== "undefined") {
+    navigator.requestMIDIAccess().then( success, failure );
+} else {
+    infos.push("Web MIDI is not supported with this browser.");
+}
+
 function success(midiAccess) {
     console.debug(midiAccess);
     infos.push("=== midi access success ===");
@@ -31,12 +36,13 @@ function midiMessageHandler(event) {
     console.log(event);
     var type = "";
     var isNote = false;
+    var data = "";
     switch (event.data[0]){
         case 144: type = "Note On"; isNote = true; break;
         case 128: type = "Note Off"; isNote = true; break;
+        case 176: type = "Control Change"; data = "[" + event.data[1] + "] value(" + event.data[2] + ")"; break;
         default:
     }
-    var data = "";
     if (isNote) {
         var note = event.data[1];
         note %= 12;
@@ -53,5 +59,6 @@ function updateDebug() {
 }
 document.addEventListener('DOMContentLoaded', function(e) {
     debug = document.getElementById('debug');
+    updateDebug();
 }, false);
 })();
