@@ -55,7 +55,11 @@ function midiMessageHandler(event) {
     var isNote = false;
     var data = "";
     switch (event.data[0]){
-        case 144: type = "Note On"; isNote = true; noteOn(event.data[1]); break;
+        case 144:
+            isNote = true;
+            if (event.data[2] == 0) { type = "Note Off"; noteOff(event.data[1]);  }
+            else { type = "Note On"; noteOn(event.data[1]); }
+            break;
         case 128: type = "Note Off"; isNote = true; noteOff(event.data[1]); break;
         case 176: type = "Control Change"; data = "[" + event.data[1] + "] value(" + event.data[2] + ")"; break;
         default:
